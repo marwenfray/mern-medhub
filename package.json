@@ -1,0 +1,29 @@
+{
+  "name": "medhub",
+  "version": "1.0.0",
+  "description": "doctor assistant web app",
+  "main": "./server/server.js",
+  "scripts": {
+    "client": "cd client && npm start",
+    "dev": "concurrently \"nodemon\" \"npm run client\""
+    },
+  "author": "Marwen Fray",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.0.0",
+    "config": "^3.3.2",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-formidable": "^1.2.0",
+    "express-session": "^1.17.1",
+    "express-validator": "^6.6.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.10.9",
+    "pug": "^3.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^5.3.0",
+    "nodemon": "^2.0.5"
+  }
+}
