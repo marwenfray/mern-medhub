@@ -1,10 +1,12 @@
 const express = require('express');
 const app = express();
 const connectDB= require("./config/connectDB")
-
+const cors = require('cors');
 //port
 const port= process.env.PORT || 5000;
 
+//auth route
+const authRoute= require("./routes/auth")
 
 //admin route
 const adminRoute=require('./routes/admin');
@@ -19,11 +21,12 @@ const patientRoute= require('./routes/patient');
 //middlewares
 
 app.use(express.json());
-
+app.use(cors());
 //connecting database
 connectDB()
 
 //routes
+app.use('/api/auth',authRoute)
 app.use('/api/admin', adminRoute)
 app.use('/api/doctor',doctorRoute);
 app.use('/api/patient',patientRoute);

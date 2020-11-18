@@ -1,7 +1,7 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const patientSchema = new Schema({
+const userSchema = new Schema({
     doctorUsername:{
         type: String,
         unique:false
@@ -14,12 +14,14 @@ const patientSchema = new Schema({
     },
     email: {
         type: String,
+        required: true,
         trim: true,
         unique: true
     },
     phoneNumber: {
         type: Number,
         unique: true,
+        required:true,
         minlength: 8,
         maxlength: 8
 
@@ -41,14 +43,28 @@ const patientSchema = new Schema({
         trim: true,
         maxlength: 20
     },
+    active:{
+        type:Boolean,
+        default:true
+    },
     appointments:[{
         type: Date
     }],
     reports:[
         {
-            type : String
+            report : {type:String},
+            date:{type: Date}
         }
-    ]
+    ],
+    userType:{
+        type:String
+    },
+    usernames:[{
+        type:String,
+        trim:true
+    }]
+
+
 });
 
-module.exports = mongoose.model("Patient", patientSchema);
+module.exports = mongoose.model("User", userSchema);

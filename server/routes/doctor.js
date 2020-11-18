@@ -2,93 +2,33 @@ const router = require('express').Router();
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const config = require("config");
-const Doctor =require('../models/Doctor')
-const Patient = require("../models/Patient")
-const {signupRules, signinRules,validator}= require("../middlewares/bodyValidator")
-const isAuth = require ('../middlewares/isAuthDoc')
-const Admin = require("../models/Admin")
+const User =require('../models/User')
+const {signupRules,validator}= require("../middlewares/bodyValidator")
+const isAuth = require ('../middlewares/isAuth')
 
 
-router.post('/signup',signupRules(), validator, async (req, res) => {
-const {username, email,phoneNumber,password,firstName,lastName} = req.body;
-try {
-     let authorization = await Admin.findOne({usernames:{$in:[username]}})
-     !authorization?  res.status(400).send({msg: "username invalid"}):
-
-    await Doctor.findOne({email})?
-     res.status(400).send({msg: "email already exists"}):
-    await Doctor.findOne({phoneNumber})?
-    res.status(400).send({msg: "phone number already exists"}):
-    doctor= new Doctor({
-         username,
-         email,
-         phoneNumber,
-         password,
-         firstName,
-         lastName
-
-    })
-    const salt=10;
-    const hashed= await bcrypt.hash(password, salt);
-    doctor.password= hashed;
-    await doctor.save()
-    res.status(200).send({msg:"user saved", doctor})
-} catch (error) {
-    res.status(500).send(error)
-    
-}	
-});
-
-
-router.post('/signin', async (req, res) => {
- const{email,password}= req.body
-try {
-    const doctor =await Doctor.findOne({email})
-   if (!doctor) { 
-       
-            return res.status(400).send({msg: "bad creadentials"})
-       
-    }
-   
-    
-    const isMatch = await bcrypt.compare(password, doctor.password)  
-    if (!isMatch){
-        return res.status(400).send({msg: "bad creadentials"})
-    }  
-
- const payload={
-        _id:doctor._id
-    };
-    const token = await jwt.sign(payload,config.get("secret") );
-
-    res.send({msg:'signin successful', doctor,token});
-
-   
-} catch (error) {
-    res.status(500).send({ msg: "Server error" })
-}
-
-});
 
 
 router.post('/add-patient', isAuth, async (req, res) => {
   const {username,email,phoneNumber,password,firstName,lastName}=req.body
-  const doctor = req.doctor
+  const user = req.user
   try
-  {let patient= await Patient.findOne({email})
+  {
+    if(user.userType!=="doctor") {res.status(401).send("Unauthorized")}
+  let patient= await User.findOne({email})
   patient?res.status(400).send({msg: "email already exists"}):
-  await Patient.findOne({phoneNumber})?
-  res.status(400).send({msg: "phone number already exists"}):
-  await Patient.findOne({username})?
+  await User.findOne({username})?
   res.status(400).send({msg: "username already exists"}):
-  patient= new Patient(
-    {doctorUsername:doctor.username,
+  patient= new User(
+    {doctorUsername:user.username,
         username,
         email,
         phoneNumber,
         password,
         firstName,
-        lastName}
+        lastName,
+        userType:"patient"
+    }
   )
   const salt=10;
     const hashed= await bcrypt.hash(password, salt);
@@ -117,14 +57,37 @@ try {let patient = await Patient.find(doctorUsername)
 } 	
 });
 
-router.post('/add-appointment/:_id',isAuth, async (req, res) => {
-const {appointment}=req.body
-const _id= req.params._id
-try {let patient = await Patient.findById(_id)
+router.post('/add-report/:_id',isAuth, async (req, res) => {
+const user =req.user    
+const {report}=req.body
+const {_id}= req.params
+const date=`${new Date().getMonth()+1}-${new Date().getDate()}-${new Date().getFullYear()}`
+const newReport={report,date}
+try {
+    console.log(date)
+    if(user.userType!=="doctor") {res.status(401).send("Unauthorized")}
+    let patient = await User.findById(_id)
     !patient? res.status(400).send({msg:"patient cannot be found"}):
-    await patient.appointments.push(appointment);
+    await patient.reports.push(newReport);
     patient.save()
-    res.status(200).send({msg:"appointment added successfully",patient})    
+    res.status(200).send({msg:"report added successfully",patient})    
+} catch (error) {
+    res.status(500).send(error)  
+}
+});
+
+
+router.post('/add-appointment/:_id',isAuth, async (req, res) => {
+    const doctor =req.user
+const {appointment}=req.body
+const {_id}= req.params
+try {
+    if(doctor.userType!=="doctor") {res.status(401).send("Unauthorized")}
+    let user = await User.findById(_id)
+    !user? res.status(400).send({msg:"patient cannot be found"}):
+    await user.appointments.push(appointment);
+    user.save()
+    res.status(200).send({msg:"appointment added successfully",appointments:user.appointments})    
 } catch (error) {
     res.status(500).send(error)  
 }
