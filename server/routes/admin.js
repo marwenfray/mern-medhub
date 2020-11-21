@@ -38,11 +38,11 @@ router.post('/add-doctor',isAuth,async (req, res) => {
     
     try {
         if(user.userType!=="admin") {res.status(401).send({msg:"Unauthorized"})}
-         let doctor= await User.findOne({usernames:{$in:[username]}})
+         else {let doctor= await User.findOne({usernames:{$in:[username]}})
           doctor?res.status(400).send({msg: "username already exists"}):
            user.usernames.push(username);
           user.save()
-          res.send({usernames:req.user.usernames})
+          res.send({user})}
     } catch (error) {
         res.status(500).send(error)
         

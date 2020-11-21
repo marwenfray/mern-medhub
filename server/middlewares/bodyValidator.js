@@ -7,7 +7,7 @@ const signupRules=()=>[
     body("password","the password must contain at least 6 characters").isLength({min:6}),
     body("phoneNumber","phone number is required").isLength({min:8,max:8}),
     body("firstName","firstName is required").notEmpty(),
-    body("lastName","lastName is required").notEmpty()
+    body("lastName","lastName is required").notEmpty(),
 ];
 
 

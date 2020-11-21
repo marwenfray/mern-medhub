@@ -15,7 +15,6 @@ const adminRoute=require('./routes/admin');
 const doctorRoute=require('./routes/doctor');
 
 //patient route
-const patientRoute= require('./routes/patient');
 
 
 //middlewares
@@ -29,7 +28,6 @@ connectDB()
 app.use('/api/auth',authRoute)
 app.use('/api/admin', adminRoute)
 app.use('/api/doctor',doctorRoute);
-app.use('/api/patient',patientRoute);
 
 app.listen(port, err => {
     err? console.log(`Error occured while running the server.

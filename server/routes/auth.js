@@ -8,7 +8,7 @@ const {signinRules,signupRules,validator} = require('../middlewares/bodyValidato
 
 
 
-router.post('/',signinRules,validator, async (req, res) => {
+router.post('/signin',signinRules(),validator, async (req, res) => {
     const{email,password}= req.body
    try {
 
