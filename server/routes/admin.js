@@ -57,7 +57,9 @@ router.put('/ban-doctor/:_id',isAuth, async (req, res) => {
 
         let doc = await User.findById(_id)
         if (!doc) {res.status(400).send({msg: "doctor doesn't exist"});}
-        doc.active=false
+        if(doc.active)
+        {doc.active=false}
+        else{doc.active=true}
         doc.save()
         res.send(doc)
 

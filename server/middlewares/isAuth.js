@@ -5,10 +5,16 @@ const User = require('../models/User');
 
 module.exports = async (req,res,next)=> {
   try {
-      const token=req.headers["authorization"];
+    //setting up the token
+      let  token;
+      if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+        token = req.headers.authorization.split(' ')[1];
+      }
+      //verifying the token
       if(!token){
           return res.status(400).send({msg:'unauthorized'})
       }
+      //decoding the token
       const decoded = await jwt.verify(token, config.get("secret"))
       const user = await User.findById(decoded._id)
       if (!user){ 

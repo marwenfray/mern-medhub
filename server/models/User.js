@@ -48,7 +48,8 @@ const userSchema = new Schema({
         default:true
     },
     appointments:[{
-        type: Date
+        appointment: {type:Date},
+        name:{type:String}
     }],
     reports:[
         {

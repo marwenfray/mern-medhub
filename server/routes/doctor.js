@@ -1,15 +1,13 @@
 const router = require('express').Router();
 const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
-const config = require("config");
 const User =require('../models/User')
-const {signupRules,validator}= require("../middlewares/bodyValidator")
+const {signupRules}= require("../middlewares/bodyValidator")
 const isAuth = require ('../middlewares/isAuth')
 
 
 
 
-router.post('/add-patient', isAuth, async (req, res) => {
+router.post('/add-patient', isAuth,signupRules(), async (req, res) => {
   const {username,email,phoneNumber,password,firstName,lastName}=req.body
   const user = req.user
   try
@@ -39,14 +37,15 @@ router.post('/add-patient', isAuth, async (req, res) => {
 }
 catch(error) {
     res.status(500).send(error)
+    console.log(error)
     
 }	
 });
 
 router.get('/patient-list', isAuth, async(req, res) => {
-    const doctor = req.body
+    const doctor = req.user
     const doctorUsername=doctor.username
-try {let patient = await Patient.find(doctorUsername)
+try {let patient = await User.find({doctorUsername})
        !patient? res.status(400).send({msg:'the list is empty'}):
        res.send(patient)
 
@@ -85,7 +84,7 @@ try {
     if(doctor.userType!=="doctor") {res.status(401).send("Unauthorized")}
     let user = await User.findById(_id)
     !user? res.status(400).send({msg:"patient cannot be found"}):
-    await user.appointments.push(appointment);
+    await user.appointments.push({appointment,name:`${user.firstName} ${user.lastName}`});
     user.save()
     res.status(200).send({msg:"appointment added successfully",appointments:user.appointments})    
 } catch (error) {

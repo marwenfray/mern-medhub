@@ -115,7 +115,8 @@ router.post('/signin',signinRules(),validator, async (req, res) => {
 })
 
    router.get('/user',isAuth, (req, res) => {
-    res.status(200).send({user:req.user});
+    res.status(200).send({user:userSecure(req.user)});
+    
    });
 
 
